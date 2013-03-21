@@ -4,15 +4,13 @@
 var express = require('express')
   , routes = require('./routes')
   , http = require('http')
-  , mongodb = require('mongodb')
   , path = require('path');
 
 var app = express();
-var Server = mongodb.Server;
-var Db = mongodb.Db;
 
-//var server = new Server('ds1234.mongolab.com', 12345, {auto_reconnect : true});
-//var db = new Db('db-name', server);
+var databaseUrl = process.env.MONGODBURL || "mongodb://username:password@server:45087/MeterLog";
+var collections = ["logdata"];
+var db = require("mongojs").connect(databaseUrl, collections);
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
@@ -31,8 +29,21 @@ app.configure('development', function(){
 });
 
 app.post('/upload', function(req, res){
-  console.log(req.body);
-  res.send("ok");
+	//console.log(req.body);
+	
+	db.logdata.save(req.body, function(err, saved) {
+		if( err || !saved ) {
+			console.log("Userdata not saved: "+err);
+			res.writeHead(500, {'Content-Type': 'text/plain'});
+			res.write("something went wrong");
+			res.end();
+		} else {
+			console.log("Userdata saved");
+			res.writeHead(200);
+			res.write("OK");
+			res.end();
+		}
+	});
 });
 
 http.createServer(app).listen(app.get('port'), function(){
