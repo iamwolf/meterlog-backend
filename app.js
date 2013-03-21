@@ -4,9 +4,15 @@
 var express = require('express')
   , routes = require('./routes')
   , http = require('http')
+  , mongodb = require('mongodb')
   , path = require('path');
 
 var app = express();
+var Server = mongodb.Server;
+var Db = mongodb.Db;
+
+//var server = new Server('ds1234.mongolab.com', 12345, {auto_reconnect : true});
+//var db = new Db('db-name', server);
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
